@@ -86,7 +86,6 @@ class WebParser:
             print(sector)
             data = WebParser.make_request(endpoint, WebParser.__WEBSITE)
             print(TableParser().start_scrap(data).make_table())
-            break
         return self
 
 
