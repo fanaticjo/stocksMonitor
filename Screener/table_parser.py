@@ -9,6 +9,10 @@ class TableParser:
         self.tbl: Dict[str, Dict[str, str]] = {}
         self.headers: List[List[str, Optional[str]]] = []
 
+    @property
+    def get_tbl(self):
+        return self.tbl
+
     @staticmethod
     def search_table(html_content, search=None, search_element=None):
         """
@@ -53,6 +57,6 @@ class TableParser:
             tmp_data: Dict[str, str] = {}
             for i, data in enumerate(data_html.find_all("td")):
                 tmp_data[self.headers[i][0]] = data.text.strip().replace("\n", "")
-            self.tbl[tmp_data.get("Name")] = tmp_data
-        print(self.tbl)
+            if tmp_data.get("Name") is not None:
+                self.tbl[tmp_data.get("Name")] = tmp_data
         return self

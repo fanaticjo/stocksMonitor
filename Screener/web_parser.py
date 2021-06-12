@@ -2,14 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from Screener.table_parser import TableParser
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union, Tuple
 
 
 class WebParser:
     """
     This parses screener website to get results
     """
-    __WEBSITE = "https://www.screener.in"
+    __WEBSITE = "<loaded from env>"
 
     def __init__(self, company: str):
         self.company: str = company
@@ -18,6 +18,40 @@ class WebParser:
         self.scrapper: Optional[BeautifulSoup] = None
         self.pros: List[str] = []
         self.cons: List[str] = []
+        self.sector_data: Dict[str, Dict[str, str]] = {}
+        self.profit_loss: Dict[str, Dict[str, str]] = {}
+
+    @property
+    def get_pro(self):
+        """
+        this gets the pros of the stock
+        :return:
+        """
+        return self.pros
+
+    @property
+    def get_cons(self):
+        """
+        this gets the cons of the stock
+        :return:
+        """
+        return self.cons
+
+    @property
+    def get_sector_data(self):
+        """
+        This returns the sector and the related stocks for the asked stock
+        :return:
+        """
+        return self.sector_data
+
+    @property
+    def get_stock_info(self):
+        """
+        This gets the stock info
+        :return:
+        """
+        return self.stock_info
 
     @staticmethod
     def make_request(endpoint, http=None):
@@ -42,7 +76,7 @@ class WebParser:
         :return:
         """
         self.page_content = WebParser.make_request(f"/company/{self.company}/consolidated/#analysis",
-                                                   "https://www.screener.in")
+                                                   WebParser.__WEBSITE)
         self.scrapper = WebParser.scrap_website(self.page_content)
         return self
 
@@ -70,24 +104,44 @@ class WebParser:
                      not isinstance(con, NavigableString)]
         return self
 
-    def pe_comparison(self):
+    def set_sector_information(self):
         """
-        This compares the pe of the company with the
+        This finds the related sector to that company and its related stocks
         :return:
         """
         peers = self.scrapper.find("section", id="peers").find("p").find_all("a")
-        ctgry: Dict[str, str] = {}
+        ctgry: Dict[str, Union[str, Dict[str, str]]] = {}
         for sector_ctgry in peers:
             name: str = sector_ctgry.text
             redirect_link: str = sector_ctgry['href']
             ctgry[name.strip()] = redirect_link.strip()
-        print(ctgry)
         for sector, endpoint in ctgry.items():
-            print(sector)
             data = WebParser.make_request(endpoint, WebParser.__WEBSITE)
-            print(TableParser().start_scrap(data).make_table())
+            table_data = TableParser().start_scrap(data).make_table().get_tbl
+            self.sector_data[sector] = {
+                "companies": table_data
+            }
         return self
+
+    def set_profit_loss(self):
+        """
+        This gets the profit loss for that company
+        :return:
+        """
+        profit_loss = self.scrapper.find("section", id="profit-loss").find_all("table", class_="ranges-table")
+        for x in profit_loss:
+            header = x.find("th").text.strip()
+            data = x.find_all("td")
+            self.profit_loss[header] = {i.text.strip(): j.text.strip() for i, j in zip(data[::2], data[1::2])}
+        return self
+
+    def sector_pe(self):
+        """
+        this gives the avg sector pe for
+        :return:
+        """
+        pass
 
 
 if __name__ == "__main__":
-    print(WebParser("INFY").start_scrap().scrap_stock_info().scrap_stock_info().scrap_pros_cons().pe_comparison())
+    print(WebParser("INFY").start_scrap().set_sector_information().get_sector_data)
