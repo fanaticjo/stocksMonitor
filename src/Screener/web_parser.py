@@ -3,13 +3,14 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from Screener.table_parser import TableParser
 from typing import Optional, Dict, List, Union, Tuple
+from statistics import mean
 
 
 class WebParser:
     """
     This parses screener website to get results
     """
-    __WEBSITE = "<loaded from env>"
+    __WEBSITE = "https://www.screener.in/"
 
     def __init__(self, company: str):
         self.company: str = company
@@ -20,6 +21,16 @@ class WebParser:
         self.cons: List[str] = []
         self.sector_data: Dict[str, Dict[str, str]] = {}
         self.profit_loss: Dict[str, Dict[str, str]] = {}
+        self.sector_pe: Dict[str, float] = {}
+
+
+    @property
+    def get_sector_pe_avg(self):
+        """
+        This returns the sector avg
+        :return:
+        """
+        return self.sector_pe
 
     @property
     def get_pro(self):
@@ -135,13 +146,17 @@ class WebParser:
             self.profit_loss[header] = {i.text.strip(): j.text.strip() for i, j in zip(data[::2], data[1::2])}
         return self
 
-    def sector_pe(self):
+    def set_sector_pe(self):
         """
         this gives the avg sector pe for
         :return:
         """
-        pass
+        for sector, companies in self.sector_data.items():
+            p_e: float = mean([float(value.get("P/E")) for name, value in companies.get("companies").items()])
+            self.sector_pe[sector] = p_e
+        return self
+
 
 
 if __name__ == "__main__":
-    print(WebParser("INFY").start_scrap().set_sector_information().get_sector_data)
+    print(WebParser("INFY").start_scrap().set_sector_information().set_sector_pe().get_sector_pe_avg)

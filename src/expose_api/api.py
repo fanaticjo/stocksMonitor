@@ -14,11 +14,6 @@ def make_error_response(message):
     )
 
 
-@app.route("/")
-def hello():
-    return "hello"
-
-
 @app.route("/stocks/<string:name>/stock_info", methods=["GET"])
 def get_stock_info(name: str):
     """
@@ -63,6 +58,30 @@ def get_pros_cons(name: str):
         make_error_response("Only get operation supported")
 
 
+@app.route("/stocks/<string:name>/avg_pe", methods=["GET"])
+def get_avg_pe(name: str):
+    """
+    This gets the average p/E
+    :param name:
+    :return:
+    """
+    if request.method == "GET":
+        stock_ob: WebParser = WebParser(name).start_scrap().scrap_stock_info().set_sector_information().set_sector_pe()
+        peer_avg: Dict[str, float] = stock_ob.get_sector_pe_avg
+        stock_pe = stock_ob.get_stock_info.get("Stock P/E")
+        peer_avg[name] = stock_pe
+        return make_response(
+            jsonify(
+                {
+                    "message": peer_avg
+                }
+            ),
+            200
+        )
+    else:
+        return make_error_response("post not supported")
+
+
 @app.route("/stocks/<string:name>/peer_group", methods=["GET"])
 def get_peer_group(name: str):
     """
@@ -74,8 +93,8 @@ def get_peer_group(name: str):
         return make_response(
             jsonify(
                 {
-                    "name":name,
-                    "peer_companies":peer_group
+                    "name": name,
+                    "peer_companies": peer_group
                 }
             ),
             200
