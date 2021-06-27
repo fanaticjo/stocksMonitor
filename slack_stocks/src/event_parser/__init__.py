@@ -36,11 +36,4 @@ class EventParser:
         self._body = value
 
 
-if __name__ == "__main__":
-    event = {
-        'body': 'dG9rZW49N3ZKY0s2SGdTd1RhSGVFdWtJb200ekluJnRlYW1faWQ9VDAyNUdIMjdKUFAmdGVhbV9kb21haW49c3RvY2thcGlzJmNoYW5uZWxfaWQ9QzAyNUtIU0NCUjgmY2hhbm5lbF9uYW1lPWdlbmVyYWwmdXNlcl9pZD1VMDI1Q1I4RlA0TiZ1c2VyX25hbWU9Ymlzd2FqaXQubW9oYXBhdHJhNjUmY29tbWFuZD0lMkZzdG9ja3MmdGV4dD1pbmZ5JmFwaV9hcHBfaWQ9QTAyNVk3Ujg2QzkmaXNfZW50ZXJwcmlzZV9pbnN0YWxsPWZhbHNlJnJlc3BvbnNlX3VybD1odHRwcyUzQSUyRiUyRmhvb2tzLnNsYWNrLmNvbSUyRmNvbW1hbmRzJTJGVDAyNUdIMjdKUFAlMkYyMjE0MDkxOTUxMTg3JTJGSzRoV0tEMHhVNElXbGFzWENxZjhLOVd5JnRyaWdnZXJfaWQ9MjIxMDg2NDM4NzI1My4yMTg2NTgwMjU2ODA1LjU4Zjc1NzBkNjAyZTljZjVkODRmOTIzZTc1OGU4NTU3',
-        'isBase64Encoded': True
-    }
-    event_parser: EventParser = EventParser()
-    event_parser(event, '1')
-    print(event_parser.body)
+
