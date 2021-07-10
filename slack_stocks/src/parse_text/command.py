@@ -42,14 +42,21 @@ class command:
                 url_maker: str = f"stocks/{stock_name}{endpoint}"
                 print(url_maker)
                 response: Optional[str, Dict[str, str]] = self.make_request(method="GET", endpoint=url_maker)
+                print(response)
                 if isinstance(response, dict):
                     print(response)
-                    api_response: Dict[str, str] = slack_response.stock_info(stock_name, response.get("message"))
+                    api_response: Dict[str, str] = run_commands.get(request).get('function')(stock_name,
+                                                                                             response.get("message") \
+                                                                                             or response)
                     print(api_response)
                     return api_response
             else:
                 return "release in progress"
         except ValueError as e:
-            return slack_response.help_response()
+            return slack_response.help_response(run_commands)
         except KeyError as e:
-            return slack_response.help_response()
+            return slack_response.help_response(run_commands)
+
+
+if __name__ == "__main__":
+    command("SJVN review", "https://7td2ktuy6i.execute-api.ap-south-1.amazonaws.com/b/").create_request()
