@@ -5,7 +5,7 @@ run_commands = {
         {
             "endpoint": "/detail",
             "doc": "gives the pros cons of a stock",
-            "deployed": "yes",
+            "deployed": "done",
             "function": slack_response.review
         },
     "price": {
